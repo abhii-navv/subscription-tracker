@@ -1,0 +1,762 @@
+/* ================================================================
+   SUBSCRIPTION COST TRACKER — Digital Heroes Palette
+   ================================================================
+   #F5F2EA  Cream White    → page background
+   #1A1A14  Near Black     → primary text
+   #2D5C3E  Forest Green   → primary / CTA
+   #C8452A  Burnt Orange   → accent / error / delete
+   #E8E4D8  Light Khaki    → surface / card bg
+   #4A7A5A  Mid Green      → hover states / secondary
+   #7A7870  Warm Gray      → muted / placeholder text
+   #F0EAD6  Parchment      → subtle bg / input bg
+   ================================================================ */
+
+/* ── 1. Reset ─────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── 2. Design Tokens ─────────────────────────────────────── */
+:root {
+  --cream:        #F5F2EA;
+  --near-black:   #1A1A14;
+  --forest-green: #2D5C3E;
+  --burnt-orange: #C8452A;
+  --light-khaki:  #E8E4D8;
+  --mid-green:    #4A7A5A;
+  --warm-gray:    #7A7870;
+  --parchment:    #F0EAD6;
+
+  /* semantic */
+  --color-bg:          var(--cream);
+  --color-surface:     var(--light-khaki);
+  --color-card:        #FFFFFF;
+  --color-input-bg:    var(--parchment);
+  --color-border:      #D5D0C5;
+  --color-border-dark: #C0BAB0;
+  --color-primary:     var(--forest-green);
+  --color-primary-hov: var(--mid-green);
+  --color-danger:      var(--burnt-orange);
+  --color-danger-bg:   rgba(200, 69, 42, 0.09);
+  --color-gold:        #A87C15;
+  --color-gold-bg:     rgba(168, 124, 21, 0.1);
+  --color-text:        var(--near-black);
+  --color-text-sub:    #3C3C32;
+  --color-muted:       var(--warm-gray);
+  --color-placeholder: #A8A49E;
+
+  /* spacing */
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  20px;
+  --sp-6:  24px;
+  --sp-8:  32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+
+  /* radius */
+  --r-sm:  6px;
+  --r-md:  12px;
+  --r-lg:  18px;
+  --r-xl:  24px;
+  --r-2xl: 32px;
+  --r-pill:99px;
+
+  /* shadows */
+  --shadow-xs: 0 1px 3px rgba(26,26,20,0.07);
+  --shadow-sm: 0 2px 8px rgba(26,26,20,0.09), 0 1px 3px rgba(26,26,20,0.05);
+  --shadow-md: 0 6px 20px rgba(26,26,20,0.10), 0 2px 6px rgba(26,26,20,0.06);
+  --shadow-lg: 0 12px 36px rgba(26,26,20,0.12), 0 4px 10px rgba(26,26,20,0.07);
+
+  /* transitions */
+  --ease:    cubic-bezier(0.4, 0, 0.2, 1);
+  --t-fast:  160ms;
+  --t-base:  220ms;
+  --t-slow:  320ms;
+
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ── 3. Base ──────────────────────────────────────────────── */
+html,
+body,
+#root {
+  min-height: 100vh;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  background-image:
+    radial-gradient(ellipse 80% 45% at 50% -5%,
+      rgba(45, 92, 62, 0.10) 0%, transparent 70%),
+    radial-gradient(ellipse 55% 35% at 95% 100%,
+      rgba(200, 69, 42, 0.07) 0%, transparent 65%);
+}
+
+input,
+button,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* ── 4. Scrollbar ─────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 7px; }
+::-webkit-scrollbar-track  { background: var(--light-khaki); }
+::-webkit-scrollbar-thumb  { background: var(--color-border-dark); border-radius: var(--r-pill); }
+::-webkit-scrollbar-thumb:hover { background: var(--forest-green); }
+
+/* ── 5. Layout ────────────────────────────────────────────── */
+.app-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--sp-8) var(--sp-4) 80px;
+}
+
+.container {
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+/* ── 6. Header Card ───────────────────────────────────────── */
+.header {
+  background: var(--color-card);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--r-2xl);
+  padding: var(--sp-10) var(--sp-8) var(--sp-8);
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+/* top accent bar */
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--forest-green) 0%,
+    var(--mid-green)    50%,
+    var(--burnt-orange) 100%
+  );
+  border-radius: var(--r-2xl) var(--r-2xl) 0 0;
+}
+
+/* subtle tint overlay */
+.header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 70% 60% at 50% 0%,
+    rgba(45, 92, 62, 0.04) 0%,
+    transparent 75%
+  );
+  pointer-events: none;
+}
+
+.header-icon {
+  display: block;
+  font-size: 3rem;
+  margin-bottom: var(--sp-3);
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+.header h1 {
+  font-size: clamp(1.6rem, 4.5vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+  color: var(--near-black);
+  margin-bottom: var(--sp-2);
+}
+
+.header h1 span {
+  color: var(--forest-green);
+}
+
+.header-subtitle {
+  font-size: 0.93rem;
+  color: var(--color-muted);
+  margin-bottom: var(--sp-6);
+  font-weight: 400;
+}
+
+/* owner pill */
+.owner-info {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 3px;
+  background: var(--parchment);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-3) var(--sp-6);
+}
+
+.owner-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--near-black);
+  letter-spacing: -0.01em;
+}
+
+.owner-email {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--forest-green);
+}
+
+/* ── 7. Summary Cards ─────────────────────────────────────── */
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4);
+}
+
+.summary-card {
+  background: var(--color-card);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--r-xl);
+  padding: var(--sp-6) var(--sp-5);
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform var(--t-base) var(--ease),
+    box-shadow var(--t-base) var(--ease);
+}
+
+/* bottom accent line */
+.summary-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 0 0 var(--r-xl) var(--r-xl);
+  transition: opacity var(--t-base) var(--ease);
+  opacity: 0;
+}
+
+.summary-card.monthly::after { background: var(--forest-green); }
+.summary-card.yearly::after  { background: linear-gradient(90deg, var(--forest-green), var(--burnt-orange)); }
+
+.summary-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.summary-card:hover::after { opacity: 1; }
+
+.summary-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: var(--color-muted);
+  margin-bottom: var(--sp-2);
+}
+
+.summary-amount {
+  font-size: clamp(1.6rem, 4vw, 2.1rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--near-black);
+  line-height: 1.1;
+}
+
+.summary-card.yearly .summary-amount {
+  color: var(--forest-green);
+}
+
+.summary-count {
+  font-size: 0.73rem;
+  color: var(--color-placeholder);
+  margin-top: var(--sp-2);
+}
+
+/* ── 8. Form Card ─────────────────────────────────────────── */
+.form-card {
+  background: var(--color-card);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--r-xl);
+  padding: var(--sp-6);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-card h2 {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-muted);
+  margin-bottom: var(--sp-5);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.form-row {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.form-group {
+  flex: 1;
+  min-width: 155px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-sub);
+  letter-spacing: 0.01em;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.7rem var(--sp-4);
+  background: var(--color-input-bg);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--r-sm);
+  color: var(--color-text);
+  font-size: 0.93rem;
+  outline: none;
+  transition:
+    border-color var(--t-fast) var(--ease),
+    background   var(--t-fast) var(--ease),
+    box-shadow   var(--t-fast) var(--ease);
+}
+
+.form-group input::placeholder {
+  color: var(--color-placeholder);
+}
+
+.form-group input:hover:not(:focus) {
+  border-color: var(--color-border-dark);
+}
+
+.form-group input:focus {
+  border-color: var(--forest-green);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(45, 92, 62, 0.15);
+}
+
+/* number input — hide spinners */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+.btn-add {
+  flex-shrink: 0;
+  min-width: 155px;
+  padding: 0.72rem var(--sp-5);
+  background: var(--forest-green);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 3px 12px rgba(45, 92, 62, 0.28);
+  transition:
+    background  var(--t-fast) var(--ease),
+    transform   var(--t-fast) var(--ease),
+    box-shadow  var(--t-fast) var(--ease);
+}
+
+.btn-add:hover:not(:disabled) {
+  background: var(--mid-green);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(45, 92, 62, 0.35);
+}
+
+.btn-add:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(45, 92, 62, 0.22);
+}
+
+.btn-add:disabled {
+  background: var(--color-surface);
+  color: var(--color-placeholder);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* error message */
+.form-error {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--color-danger-bg);
+  border: 1px solid rgba(200, 69, 42, 0.25);
+  border-left: 3px solid var(--burnt-orange);
+  border-radius: var(--r-sm);
+  color: var(--burnt-orange);
+  font-size: 0.82rem;
+  font-weight: 500;
+  animation: slide-down 0.18s var(--ease);
+}
+
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── 9. Subscription List ─────────────────────────────────── */
+.list-card {
+  background: var(--color-card);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-4) var(--sp-6);
+  background: var(--parchment);
+  border-bottom: 1.5px solid var(--color-border);
+}
+
+.list-header h2 {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-muted);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 var(--sp-2);
+  background: var(--forest-green);
+  color: #fff;
+  border-radius: var(--r-pill);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+/* list wrapper */
+.subscription-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+}
+
+/* ── individual item ── */
+.subscription-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-4);
+  background: var(--color-bg);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--r-md);
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+  transition:
+    background      var(--t-base) var(--ease),
+    border-color    var(--t-base) var(--ease),
+    transform       var(--t-base) var(--ease),
+    box-shadow      var(--t-base) var(--ease);
+  animation: item-in 0.28s var(--ease) both;
+}
+
+@keyframes item-in {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.subscription-item:hover {
+  background: var(--parchment);
+  border-color: var(--mid-green);
+  transform: translateX(4px);
+  box-shadow: var(--shadow-xs);
+}
+
+/* ── most expensive crown ── */
+.subscription-item.is-priciest {
+  border-color: var(--color-gold);
+  background: linear-gradient(
+    90deg,
+    rgba(168, 124, 21, 0.07) 0%,
+    var(--color-bg)          60%
+  );
+}
+
+.subscription-item.is-priciest:hover {
+  background: linear-gradient(
+    90deg,
+    rgba(168, 124, 21, 0.10) 0%,
+    var(--parchment)         60%
+  );
+  border-color: var(--color-gold);
+}
+
+.subscription-item.is-priciest::after {
+  content: '👑 Most Expensive';
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-gold);
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+/* icon box */
+.item-icon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  background: var(--light-khaki);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--r-md);
+}
+
+.subscription-item.is-priciest .item-icon {
+  background: var(--color-gold-bg);
+  border-color: rgba(168, 124, 21, 0.3);
+}
+
+/* text block */
+.item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--near-black);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+  margin-bottom: 2px;
+}
+
+.item-yearly {
+  font-size: 0.73rem;
+  color: var(--color-muted);
+  line-height: 1;
+}
+
+.item-yearly span {
+  font-weight: 600;
+  color: var(--color-text-sub);
+}
+
+/* cost block */
+.item-cost {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.item-monthly {
+  font-size: 1.08rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--forest-green);
+  line-height: 1.2;
+}
+
+.subscription-item.is-priciest .item-monthly {
+  color: var(--color-gold);
+}
+
+.item-label {
+  font-size: 0.68rem;
+  color: var(--color-placeholder);
+  margin-top: 2px;
+}
+
+/* delete button */
+.btn-delete {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: transparent;
+  border: 1.5px solid transparent;
+  border-radius: var(--r-sm);
+  color: var(--color-muted);
+  cursor: pointer;
+  transition:
+    color        var(--t-fast) var(--ease),
+    border-color var(--t-fast) var(--ease),
+    background   var(--t-fast) var(--ease);
+}
+
+.btn-delete:hover {
+  color: var(--burnt-orange);
+  border-color: rgba(200, 69, 42, 0.35);
+  background: var(--color-danger-bg);
+}
+
+.btn-delete:active {
+  transform: scale(0.92);
+}
+
+/* ── 10. Empty State ──────────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-12) var(--sp-6);
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 3.5rem;
+  opacity: 0.3;
+  line-height: 1;
+}
+
+.empty-state strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-sub);
+}
+
+.empty-state p {
+  font-size: 0.87rem;
+  color: var(--color-muted);
+  max-width: 260px;
+}
+
+/* ── 11. Footer CTA ───────────────────────────────────────── */
+.footer-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) 0;
+}
+
+/* "Built for Digital Heroes" link button */
+.btn-hero {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-8);
+  background: var(--near-black);
+  color: var(--cream);
+  border: none;
+  border-radius: var(--r-pill);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(26, 26, 20, 0.20);
+  transition:
+    background   var(--t-base) var(--ease),
+    transform    var(--t-base) var(--ease),
+    box-shadow   var(--t-base) var(--ease);
+}
+
+.btn-hero:hover {
+  background: var(--forest-green);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 28px rgba(45, 92, 62, 0.32);
+}
+
+.btn-hero:active {
+  transform: translateY(0) scale(0.99);
+}
+
+.footer-text {
+  font-size: 0.74rem;
+  color: var(--color-placeholder);
+  letter-spacing: 0.01em;
+}
+
+/* ── 12. Responsive ───────────────────────────────────────── */
+@media (max-width: 540px) {
+  .app-wrapper { padding-top: var(--sp-5); }
+
+  .header { padding: var(--sp-8) var(--sp-5) var(--sp-6); }
+  .header h1 { font-size: 1.55rem; }
+
+  .summary-grid { grid-template-columns: 1fr 1fr; gap: var(--sp-3); }
+  .summary-amount { font-size: 1.5rem; }
+
+  .form-card { padding: var(--sp-5); }
+  .form-row { flex-direction: column; }
+  .btn-add { min-width: unset; width: 100%; }
+
+  .list-header { padding: var(--sp-3) var(--sp-4); }
+  .subscription-list { padding: var(--sp-2); }
+
+  .subscription-item { padding: var(--sp-3); gap: var(--sp-3); }
+  .subscription-item.is-priciest::after { display: none; }
+  .item-icon { width: 38px; height: 38px; font-size: 1rem; }
+  .item-monthly { font-size: 0.98rem; }
+}
+
+@media (max-width: 380px) {
+  .summary-grid { grid-template-columns: 1fr; }
+  .summary-card { padding: var(--sp-4); }
+}
